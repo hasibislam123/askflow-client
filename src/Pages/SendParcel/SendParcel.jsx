@@ -2,13 +2,21 @@ import React from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useLoaderData } from 'react-router';
 import Swal from 'sweetalert2';
+import useAxiosSecure from '../../Hooks/useAxiosSecure';
+import useAuth from '../../Hooks/useAuth';
 
 const warehouseOptions = ['Warehouse A', 'Warehouse B', 'Warehouse C'];
 
 const SendParcel = () => {
-   const { register, handleSubmit, control } = useForm({
-      defaultValues: { type: "Document" }
-   });
+   const {
+      register,
+      handleSubmit,
+      control } = useForm({
+         defaultValues: { type: "Document" }
+      });
+   const { user } = useAuth();
+
+   const axiosSecure = useAxiosSecure()
 
    const serviceCenter = useLoaderData();
 
@@ -26,11 +34,9 @@ const SendParcel = () => {
    const handelSendParcel = data => {
       console.log(data);
 
-
       const isDocument = data.pacelType === 'Document'
       const isSameDistrict = data.senderDistrict === data.receiverDistrict;
       const parcelWeight = parseFloat(data.parcelWeight)
-
 
       let cost = 0;
       if (isDocument) {
@@ -50,7 +56,6 @@ const SendParcel = () => {
       }
       console.log("cost", cost)
 
-
       Swal.fire({
          title: "Agree With the Cost ",
          text: `You Will be charged  ${cost}`,
@@ -61,11 +66,10 @@ const SendParcel = () => {
          confirmButtonText: "I agree!"
       }).then((result) => {
          if (result.isConfirmed) {
-            // Swal.fire({
-            //    title: "ok",
-            //    text: "Your file has been successfully.",
-            //    icon: "success"
-            // });
+            axiosSecure.post('/parcels', data)
+               .then(res => {
+                  console.log('after saveing parcel', res.data)
+               })
          }
       });
    };
@@ -124,7 +128,7 @@ const SendParcel = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                      <div>
                         <label className="font-semibold">Sender Name</label>
-                        <input {...register("senderName")} className="input input-bordered w-full" />
+                        <input {...register("senderName")} defaultValue={user?.displayName} className="input input-bordered w-full" />
                      </div>
 
                      <div>
@@ -146,6 +150,11 @@ const SendParcel = () => {
                         <label className="font-semibold">Sender Contact No</label>
                         <input {...register("senderContact")} className="input input-bordered w-full" />
                      </div>
+                  </div>
+
+                  <div>
+                     <label className="font-semibold">Sender Email</label>
+                     <input {...register("senderEmail")} type="email" defaultValue={user?.email} className="input input-bordered w-full" placeholder="Sender Email" />
                   </div>
 
                   <div>
@@ -199,6 +208,11 @@ const SendParcel = () => {
                         <label className="font-semibold">Receiver Contact No</label>
                         <input {...register("receiverContact")} className="input input-bordered w-full" />
                      </div>
+                  </div>
+
+                  <div>
+                     <label className="font-semibold">Receiver Email</label>
+                     <input {...register("receiverEmail")} type="email" className="input input-bordered w-full" placeholder="Receiver Email" />
                   </div>
 
                   <div>

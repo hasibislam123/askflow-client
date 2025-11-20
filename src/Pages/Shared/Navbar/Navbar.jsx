@@ -22,6 +22,13 @@ const Navbar = () => {
       <li><NavLink to=''>Blog</NavLink></li>
       <li><NavLink to=''>Contact</NavLink></li>
 
+
+      {
+         user && <>
+         <li><NavLink to='/dashboard/my-parcels'>My parcels</NavLink></li>
+         </>
+      }
+
    </>
    return (
       <div className="navbar bg-base-100 shadow-sm">
